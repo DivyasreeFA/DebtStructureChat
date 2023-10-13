@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+  <style>
+
+    #my_dataviz {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .axis--x text {
+      fill: #556b8d;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+    }
+    .text {
+        fill: #556b8d;
+      font-family: Arial, sans-serif;
+      font-size: 20px;
+    }
+    .axis--x path,
+    .axis--y path {
+      stroke: #dadef0;
+      stroke-width: 3px;
+    }
+
+    .area {
+      fill: #dadef0;
+      fill-opacity: 0.8;
+      
+      /* stroke-linejoin: round; */
+      
+      
+    }
+
+    .line {
+      fill: none;
+      stroke: #556b8d;
+      stroke-width: 6;
+    }
+  </style>
+</head>
+<body>
+  <div id="my_dataviz">
+    <svg></svg>
+  </div>
+  <script>
+   
+    var margin = { top: 10, right: 30, bottom: 200, left: 50 };
+    var width = 800 - margin.left - margin.right;
+    var height = 800 - margin.top - margin.bottom;
+
+   
+    var svg = d3.select("#my_dataviz svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+   
+    var lineDataset = [
+      { date: "Q4-18", value: 270 },
+      { date: "Q4-19", value: 290 },
+      { date: "Q4-20", value: 340 },
+      { date: "Q4-21", value: 360 },
+      { date: "Q4-22", value: 420 },
+      { date: "Q4-23", value: 420 }
+    ];
+
+    var areaDataset = [
+      { date: "Q4-18", value: 200 },
+      { date: "Q4-19", value: 250 },
+      { date: "Q4-20", value: 230 },
+      { date: "Q4-21", value: 280 },
+      { date: "Q4-22", value: 230 },
+      { date: "Q4-23", value: 230 }
+    ];
+
+    
+    var x = d3.scaleBand()
+      .domain(lineDataset.map(function(d) { return d.date; }))
+      .range([0, width])
+      .padding(0.01);
+
+    svg.append("g")
+      .attr("class", "axis axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x).tickSize(0));
+
+    
+    svg.selectAll(".axis--x text")
+      .attr("dy", "0.71em")
+      .attr("y", 20);
+
+   
+    var yLine = d3.scaleLinear()
+      .domain([100, d3.max(lineDataset, function(d) { return d.value; })])
+      .range([height, 300]);
+
+    var yAxisLine = svg.append("g")
+      .attr("class", "axis axis--y")
+      .call(d3.axisLeft(yLine).tickSize(0));
+
+   
+    yAxisLine.selectAll("text").remove();
+
+    var area = d3.area()
+      .x(function(d) { return x(d.date) + x.bandwidth() / 4; })
+      .y0(function(d) { return yLine(d.value + 130); })
+      .y1(function(d) { return yLine(d.value); });
+
+      
+
+    
+    svg.append("path")
+      .datum(areaDataset)
+      .attr("class", "area")
+      .attr("d", area);
+
+   
+    svg.append("path")
+      .datum(lineDataset)
+      .attr("class", "line")
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.date) + x.bandwidth() / 4; })
+        .y(function(d) { return yLine(d.value); })
+      );
+      svg.selectAll(".axis--x text")
+      .attr("x", -24); 
+
+      svg.append("rect")
+      .attr("x", 0)
+      .attr("y", 650)
+      .attr("width", 30)
+      .attr("height", 30)
+      .style("fill", "#556b8d");
+
+   
+    svg.append("rect")
+      .attr("x", 250)
+      .attr("y", 650)
+      .attr("width", 30)
+      .attr("height", 30)
+      .style("fill", "#dadef0");
+
+      svg.append("text")
+      .attr("x", 38)
+      .attr("y", 671)
+      .text("Net Debt/EBIT")
+      .style("fill", "#556b8d")
+      .style("font-family", "Arial, sans-serif")
+      .style("font-size", "20px");
+
+    svg.append("text")
+      .attr("x", 290)
+      .attr("y", 671)
+      .text(" Peer Net Debt/EBIT : Interquartile range")
+      .style("fill", "#556b8d")
+      .style("font-family", "Arial, sans-serif")
+      .style("font-size", "20px");
+  </script>
+</body>
+</html>
